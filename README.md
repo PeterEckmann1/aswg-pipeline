@@ -41,3 +41,16 @@ Each manuscript takes about one minute to analyze.
 `barzooka` and `jetfighter` tend to take longer than the other tools, so for optimal performance,
 append `--scale barzooka=2` and `--scale jetfighter=2` to the `docker-compose` command. To analyze how each tool
 is performing, run `plot_performance_data.py`with `matplotlib` installed.
+
+<h2>Missing files</h2>
+
+Because of GitHub's 100MB file limit, a few model files could not be included in the repository. These files are:
+
+* `barzooka/src/barzooka.pkl`
+* `extractor/src/methods-model.bin`
+* `jetfighter/src/CombinedPreprintLimitationRecognizer.jar`
+* `sciscore/src/pt_model.joblib`
+* `sciscore/src/pt_vocab.ser`
+
+There is also an `auth.env` file that is not included, which contains various API keys and tokens needed for the pipeline to run.
+For access to these files, contact petereckmann(at)gmail(dot)com.
