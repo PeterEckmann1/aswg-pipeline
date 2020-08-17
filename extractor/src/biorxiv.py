@@ -103,7 +103,12 @@ class Paper:
             if '<meta name="DC.Title"' in line:
                 title = line.split('<meta name="DC.Title" content="')[1].split('"')[0]
                 break
-        return {'names': names, 'title': title}
+        abstract = ''
+        for line in html.split('\n'):
+            if '<meta name="DC.Description"' in line:
+                abstract = line.split('<meta name="DC.Description" content="')[1]
+                break
+        return {'names': names, 'title': title, 'abstract': abstract}
 
 
 def get_dois(start, stop):
