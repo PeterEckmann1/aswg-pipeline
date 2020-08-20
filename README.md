@@ -26,6 +26,7 @@ the following stages:
     * [`oddpub`](https://github.com/kilicogluh/limitation-recognizer) looks for the presence of open code and data.
     * [`sciscore`](https://sciscore.com/) reviews methods sections for rigor criteria and uniqueness of 
     identified resources.
+    * [`trial-identifier`](https://github.com/bgcarlisle/PreprintScreening) finds and resolves clinical trial numbers.
 4. `release` combines all results into one HTML report, publishes the report on hypothes.is, and sends a Tweet
 referencing the report ([@SciScoreReports](https://twitter.com/SciscoreReports)).
 
