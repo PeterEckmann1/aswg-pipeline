@@ -38,8 +38,14 @@ def clear_papers():
 
 
 clear_papers()
-time.sleep(30)
-conn = psycopg2.connect(dbname='postgres', user='postgres', password=POSTGRES_PASSWORD, host='annotation-db')
+make_folder('2020.08.11.247320')
+exit(0)
+while True:
+    try:
+        conn = psycopg2.connect(dbname='postgres', user='postgres', password=POSTGRES_PASSWORD, host='annotation-db')
+        break
+    except:
+        time.sleep(1)
 cur = conn.cursor()
 
 cur.execute('create table if not exists Annotations (DOI text, Source text, Date text, Title text, AnnotationLink text, SciScore text, LimitationRecognizer text, ODDPub text, Barzooka text, JetFighter text)')

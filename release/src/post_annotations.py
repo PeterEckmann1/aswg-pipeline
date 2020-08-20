@@ -74,19 +74,23 @@ def add_data_log(data):
     data_file.close()
 
 
-time.sleep(30)
-conn = psycopg2.connect(dbname='postgres', user='postgres', password=POSTGRES_PASSWORD, host='annotation-db')
+while True:
+    try:
+        conn = psycopg2.connect(dbname='postgres', user='postgres', password=POSTGRES_PASSWORD, host='annotation-db')
+        break
+    except:
+        time.sleep(1)
 cur = conn.cursor()
 
 open('../performance-data/data.csv', 'w').close()
 permanent = 0
 
-tools = ['sciscore', 'limitation-recognizer', 'oddpub', 'barzooka', 'jetfighter']
+tools = ['sciscore', 'limitation-recognizer', 'oddpub', 'barzooka', 'jetfighter', 'trial-identifier']
 while True:
     time.sleep(random.random())
     ids = os.listdir('../papers')
     print('Number of papers left:', len(ids))
-    sums = [0, 0, 0, 0, 0]
+    sums = [0, 0, 0, 0, 0, 0]
     for id in ids:
         if not os.path.exists('../papers/' + id + '/release_started'):
             files = os.listdir('../papers/' + id)
@@ -101,8 +105,9 @@ while True:
                 oddpub = get_annotation_for_tool('oddpub', id)
                 barzooka = get_annotation_for_tool('barzooka', id)
                 jetfighter = get_annotation_for_tool('jetfighter', id)
+                trial_identifier = get_annotation_for_tool('trial-identifier', id)
 
-                body = sciscore.replace('<p><b>About SciScore</b></p>', '<hr>{}<hr><p><b>About SciScore</b></p>'.format('<hr style="border-top: 1px solid #ccc;">'.join([oddpub, limitation_recognizer, barzooka, jetfighter])))
+                body = sciscore.replace('<p><b>About SciScore</b></p>', '<hr>{}<hr><p><b>About SciScore</b></p>'.format('<hr style="border-top: 1px solid #ccc;">'.join([oddpub, limitation_recognizer, trial_identifier, barzooka, jetfighter])))
                 doi = '10.1101/' + id
                 url = get_url(doi)
                 body = body.replace('\n', ' ').replace('  ',' ')
@@ -111,7 +116,7 @@ while True:
 
                 title = get_title(url)
 
-                add_db_entry(doi, 'pdf', str(datetime.date.today()), title, anno_link, get_db_for_tool('sciscore', id), get_db_for_tool('limitation-recognizer', id), get_db_for_tool('oddpub', id), get_db_for_tool('barzooka', id), get_db_for_tool('jetfighter', id))
+                #add_db_entry(doi, 'pdf', str(datetime.date.today()), title, anno_link, get_db_for_tool('sciscore', id), get_db_for_tool('limitation-recognizer', id), get_db_for_tool('oddpub', id), get_db_for_tool('barzooka', id), get_db_for_tool('jetfighter', id))
 
                 if len(title) > 50:
                     title = title[:50].rstrip() + '...'
@@ -128,7 +133,7 @@ while True:
                 else:
                     tweet = 'The paper “{}” ({}) has been reviewed by a set of automated tools; find the results of the analysis here: {}. We detected {} of {} rigor criteria and {} key resource{}.'.format(title, url, anno_link, addressed_rigor, total_rigor, resource_count, '' if resource_count == 1 else 's')
 
-                send_tweet(tweet)
+                #send_tweet(tweet)
                 print('Tweet sent for', anno_link)
 
     add_data_log(','.join([str(sum + permanent) for sum in sums]) + '\n')

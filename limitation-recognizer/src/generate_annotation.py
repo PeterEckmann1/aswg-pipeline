@@ -6,7 +6,7 @@ import time
 import random
 
 
-time.sleep(20)
+time.sleep(5)
 while True:
     time.sleep(random.random())
     ids = os.listdir('../papers')
@@ -24,7 +24,8 @@ while True:
             if len(sents) == 0:
                 statement = 'An explicit section about the limitations of the techniques employed in this study was not found. We encourage authors to address study limitations.'
             else:
-                statement = 'We detected the following sentences addressing limitations in the study:<blockquote>' + ' '.join(sents) + '</blockquote>'
+                text = ' '.join(sents)
+                statement = 'We detected the following sentences addressing limitations in the study:<blockquote>' + text[:1500] + ('...' if len(text) > 1500 else '') + '</blockquote>'
             statement = '<p><i>Results from <a href="https://academic.oup.com/jamia/article/25/7/855/4990607">LimitationRecognizer</a></i>: ' + statement + '</p>'
             os.remove('temp.json')
             with open('../papers/' + id + '/limitation-recognizer_db.txt', 'w', encoding='utf-8') as f:

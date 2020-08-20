@@ -5,7 +5,7 @@ import time
 import random
 
 
-time.sleep(20)
+time.sleep(5)
 while True:
     time.sleep(random.random())
     ids = os.listdir('../papers')

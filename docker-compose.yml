@@ -27,11 +27,12 @@ services:
       - db-net
     env_file:
       - auth.env
-    depends_on:
-      - "annotation-db"
-
   barzooka:
     build: barzooka
+    volumes:
+      - papers:/papers
+  trial-identifier:
+    build: trial-identifier
     volumes:
       - papers:/papers
   jetfighter:
@@ -46,8 +47,6 @@ services:
       - db-net
     env_file:
       - auth.env
-    depends_on:
-      - "annotation-db"
   annotation-db:
     image: postgres
     container_name: annotation-db

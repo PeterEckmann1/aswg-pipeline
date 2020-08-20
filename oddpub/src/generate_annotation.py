@@ -5,7 +5,7 @@ import time
 import random
 
 
-time.sleep(20)
+time.sleep(5)
 while True:
     time.sleep(random.random())
     ids = os.listdir('../papers')
@@ -15,9 +15,7 @@ while True:
             print('Started processing', id)
             os.mkdir('temp')
             shutil.copyfile('../papers/' + id + '/all.txt', 'temp/all.txt')
-            print('pog')
             subprocess.call(['Rscript', 'run.R'])
-            print('U')
             shutil.rmtree('temp')
             with open('temp.csv', 'r', encoding='utf-8') as f:
                 line = f.readlines()[1].split()
