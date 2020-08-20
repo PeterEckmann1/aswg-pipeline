@@ -18,7 +18,7 @@ while True:
             shutil.copyfile('../papers/' + id + '/all.txt', f'temp/10.1101_{id}.txt')
             subprocess.call(['Rscript', 'run.R'])
             shutil.rmtree('temp')
-            rows = [['Identifier', 'Resolved on <a href="clinicaltrials.gov">clinicaltrials.gov</a>', 'Status', 'Title']]
+            rows = [['Identifier', 'Resolved on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>', 'Status', 'Title']]
             with open('temp.csv', 'r', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 next(f)
@@ -36,7 +36,7 @@ while True:
                 for row in rows:
                     table_body += '<tr>'
                     for col in row:
-                        table_body += f'<td style="min-width:90px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{col}</td>'
+                        table_body += f'<td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{col}</td>'
                     table_body += '</tr>'
                 table_body += '</table>'
                 statement = f'We found the following clinical trial numbers in your paper:<br>{table_body}'
