@@ -116,7 +116,7 @@ while True:
 
                 title = get_title(url)
 
-                #add_db_entry(doi, 'pdf', str(datetime.date.today()), title, anno_link, get_db_for_tool('sciscore', id), get_db_for_tool('limitation-recognizer', id), get_db_for_tool('oddpub', id), get_db_for_tool('barzooka', id), get_db_for_tool('jetfighter', id))
+                add_db_entry(doi, 'pdf', str(datetime.date.today()), title, anno_link, get_db_for_tool('sciscore', id), get_db_for_tool('limitation-recognizer', id), get_db_for_tool('oddpub', id), get_db_for_tool('barzooka', id), get_db_for_tool('jetfighter', id))
 
                 if len(title) > 50:
                     title = title[:50].rstrip() + '...'
@@ -133,7 +133,7 @@ while True:
                 else:
                     tweet = 'The paper “{}” ({}) has been reviewed by a set of automated tools; find the results of the analysis here: {}. We detected {} of {} rigor criteria and {} key resource{}.'.format(title, url, anno_link, addressed_rigor, total_rigor, resource_count, '' if resource_count == 1 else 's')
 
-                #send_tweet(tweet)
+                send_tweet(tweet)
                 print('Tweet sent for', anno_link)
 
     add_data_log(','.join([str(sum + permanent) for sum in sums]) + '\n')

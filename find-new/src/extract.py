@@ -38,8 +38,6 @@ def clear_papers():
 
 
 clear_papers()
-make_folder('2020.08.11.247320')
-exit(0)
 while True:
     try:
         conn = psycopg2.connect(dbname='postgres', user='postgres', password=POSTGRES_PASSWORD, host='annotation-db')

@@ -18,7 +18,7 @@ while True:
             shutil.copyfile('../papers/' + id + '/all.txt', f'temp/10.1101_{id}.txt')
             subprocess.call(['Rscript', 'run.R'])
             shutil.rmtree('temp')
-            rows = [['Identifier', 'Resolved on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>', 'Status', 'Title']]
+            rows = [['Identifier', 'Status', 'Title']]
             with open('temp.csv', 'r', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 next(f)
@@ -28,13 +28,19 @@ while True:
                         identifier = f'<a href="{url}">{row[2]}</a>'
                     else:
                         identifier = row[2]
-                    rows.append([identifier, 'Yes' if row[3] == 'TRUE' else 'No', row[6], row[4][:30] + ('...' if len(row[4]) > 30 else '')])
+                    if row[3] == 'FALSE':
+                        rows.append([identifier, 'Trial number did not resolve on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>. Did you get the right number?', ''])
+                    else:
+                        rows.append([identifier, row[6], row[4][:60] + ('...' if len(row[4]) > 60 else '')])
             if len(rows) == 1:
                 statement = 'No clinical trial numbers were referenced.'
             else:
                 table_body = '<table>'
                 for row in rows:
-                    table_body += '<tr>'
+                    if 'Trial number did not resolve' in row[1]:
+                        table_body += '<tr style="background-color:#FF0000">'
+                    else:
+                        table_body += '<tr>'
                     for col in row:
                         table_body += f'<td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{col}</td>'
                     table_body += '</tr>'
@@ -45,3 +51,4 @@ while True:
                 f.write(str(rows))
             with open('../papers/' + id + '/trial-identifier.html', 'w', encoding='utf-8') as f:
                 f.write(statement)
+            os.remove('temp.csv')
