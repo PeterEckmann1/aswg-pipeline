@@ -29,7 +29,7 @@ while True:
                     else:
                         identifier = row[2]
                     if row[3] == 'FALSE':
-                        rows.append([identifier, 'Trial number did not resolve on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>. Did you get the right number?', ''])
+                        rows.append([identifier, 'Trial number did not resolve on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>. Is the number correct?', ''])
                     else:
                         rows.append([identifier, row[6], row[4][:60] + ('...' if len(row[4]) > 60 else '')])
             if len(rows) == 1:
