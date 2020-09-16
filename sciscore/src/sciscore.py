@@ -26,6 +26,7 @@ class Paper:
         zip_file = file + '.zip'
         r = requests.post(url=_URL, data=params, timeout=305)
         if r.status_code != 200:
+            print(self._methods)
             print('SciScore returned', r.status_code, 'waiting 5 minutes...')
             time.sleep(305)
             r = requests.post(url=_URL, data=params, timeout=305)
