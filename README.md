@@ -39,6 +39,8 @@ docker-compose up
 
 Each manuscript takes about one minute to analyze.
 
+If running the tool for the first time, run `docker-compose build` to build the container images.
+
 `barzooka` and `jetfighter` tend to take longer than the other tools, so for optimal performance,
 append `--scale barzooka=2` and `--scale jetfighter=2` to the `docker-compose` command. To analyze how each tool
 is performing, run `plot_performance_data.py`with `matplotlib` installed.
