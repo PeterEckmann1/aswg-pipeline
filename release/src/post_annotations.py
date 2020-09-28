@@ -29,7 +29,9 @@ def send_tweet(text):
     url = 'https://api.twitter.com/1.1/statuses/update.json?status=' + quote(text, safe='')
     r = session.post(url)
     if r.status_code == 403:
+        print(r.text)
         print('Tweet not sent:', text)
+        exit(0)
 
 def post_hypothesis_annotation(body, doi, url):
     payload = {
