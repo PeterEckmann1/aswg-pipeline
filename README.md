@@ -51,7 +51,7 @@ Because of GitHub's 100MB file limit, a few model files could not be included in
 
 * `barzooka/src/barzooka.pkl`
 * `extractor/src/methods-model.bin`
-* `jetfighter/src/CombinedPreprintLimitationRecognizer.jar`
+* `limitation-recognizer/src/CombinedPreprintLimitationRecognizer.jar`
 * `sciscore/src/pt_model.joblib`
 * `sciscore/src/pt_vocab.ser`
 
