@@ -6,7 +6,7 @@ import random
 import csv
 
 
-time.sleep(5)
+time.sleep(10)
 while True:
     time.sleep(random.random())
     ids = os.listdir('../papers')
@@ -31,7 +31,11 @@ while True:
                     if row[3] == 'FALSE':
                         rows.append([identifier, 'Trial number did not resolve on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>. Is the number correct?', ''])
                     else:
-                        rows.append([identifier, row[6], row[4][:60] + ('...' if len(row[4]) > 60 else '')])
+                        try:
+                            rows.append([identifier, row[6], row[4][:60] + ('...' if len(row[4]) > 60 else '')])
+                        except:
+                            print('Trial error, ignoring')
+                            pass
             if len(rows) == 1:
                 statement = 'No clinical trial numbers were referenced.'
             else:
