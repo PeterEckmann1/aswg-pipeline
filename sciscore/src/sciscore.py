@@ -29,8 +29,8 @@ class Paper:
             print('Using blank SciScore, body text may not work.')
             params = {'userId': _USER_ID,
                       'userType': _USER_TYPE,
-                      'documentId': self._id,
-                      'sectionContent': self._methods,
+                      'documentId': 'test',
+                      'sectionContent': 'test',
                       'apiKey': _API_KEY,
                       'jsonOutput': 'true'}
             r = requests.post(url=_URL, data=params, timeout=305)
