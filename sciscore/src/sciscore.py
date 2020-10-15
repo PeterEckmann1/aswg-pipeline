@@ -26,13 +26,16 @@ class Paper:
         zip_file = file + '.zip'
         r = requests.post(url=_URL, data=params, timeout=305)
         if r.status_code != 200:
-            print(self._methods)
-            print('SciScore returned', r.status_code, 'waiting 5 minutes...')
-            time.sleep(305)
+            print('Using blank SciScore, body text may not work.')
+            params = {'userId': _USER_ID,
+                      'userType': _USER_TYPE,
+                      'documentId': self._id,
+                      'sectionContent': self._methods,
+                      'apiKey': _API_KEY,
+                      'jsonOutput': 'true'}
             r = requests.post(url=_URL, data=params, timeout=305)
             if r.status_code != 200:
-                print('SciScore returned', r.status_code, 'exiting...')
-                print(r.content)
+                print('SciScore down')
                 exit(0)
         with open(zip_file, 'wb') as f:
             f.write(r.content)
