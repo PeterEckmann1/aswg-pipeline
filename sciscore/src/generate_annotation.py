@@ -77,7 +77,7 @@ def generate_html(json_obj, discard_rigor):
       information scattered throughout a paper in a standard, easy to digest format. SciScore checks for the presence 
       and correctness of RRIDs (research resource identifiers), and for rigor criteria such as sex and 
       investigator blinding. For details on the theoretical underpinning of rigor criteria and the tools shown here, 
-      including references cited, please follow <a href="https://docs.google.com/document/d/1fY0Uze8b4udlPGDLNfAXgFiXzxUeACLssA_lieKMqTI/edit">this link</a>.
+      including references cited, please follow <a href="https://scicrunch.org/ASWG/about/References">this link</a>.
       """
 
     return html
