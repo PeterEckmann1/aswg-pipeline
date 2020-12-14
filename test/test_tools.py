@@ -158,3 +158,7 @@ class TestTools(unittest.TestCase):
 
         self.assertTrue(result['10.1101/2020.11.29.20240481']['open_code'])
         self.assertTrue(result['10.1101/2020.11.29.20240481']['open_data'])
+
+
+if __name__ == '__main__':
+    unittest.main()

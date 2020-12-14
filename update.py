@@ -10,10 +10,6 @@ from datetime import date
 import release
 
 
-#normally false, only true when first populating db
-check_old_reports = False
-
-
 def get_urls(urls):
     pickle.dump(urls, open('urls.pickle', 'wb'))
     subprocess.call(['python', 'get_urls.py'])
@@ -154,16 +150,23 @@ def update_reports():
     for doi_set in dois:
         reports = get_report(doi_set)
         for doi in reports:
-            cur.execute('update preprints set report_exists = true, report_generated = current_timestamp, html_report = %s, tweet_text = %s, discussion_text = %s, methods_text = %s, all_text = %s, jet_page_numbers = %s, limitation_sentences = %s, trial_numbers = %s, sciscore = %s, is_modeling_paper = %s, graph_types = %s, is_open_data = %s, is_open_code = %s where doi = %s',
+            cur.execute('update preprints set report_exists = true, report_generated_timestamp = current_timestamp, html_report = %s, tweet_text = %s, discussion_text = %s, methods_text = %s, all_text = %s, jet_page_numbers = %s, limitation_sentences = %s, trial_numbers = %s, sciscore = %s, is_modeling_paper = %s, graph_types = %s, is_open_data = %s, is_open_code = %s where doi = %s',
                         (reports[doi]['html_report'], reports[doi]['tweet_text'], reports[doi]['discussion_text'], reports[doi]['methods_text'], reports[doi]['all_text'], json.dumps(reports[doi]['jet_page_numbers']), json.dumps(reports[doi]['limitation_sentences']), json.dumps(reports[doi]['trial_numbers']), json.dumps(reports[doi]['sciscore']), reports[doi]['is_modeling_paper'], json.dumps(reports[doi]['graph_types']), reports[doi]['is_open_data'], reports[doi]['is_open_code'], doi))
     conn.commit()
 
 
 if __name__ == '__main__':
-    conn = psycopg2.connect(dbname='preprints', user='postgres', password=os.environ['POSTGRES_PASSWORD'])
+    conn = psycopg2.connect(dbname='preprints', user='postgres', host='database', password=os.environ['POSTGRES_PASSWORD'])
     cur = conn.cursor()
-    hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
-                            group=os.environ['HYPOTHESIS_GROUP'])
+    cur.execute('select exists(select * from information_schema.tables where table_name=%s)', ('preprints',))
+    if not cur.fetchone()[0]:
+        cur.execute(open('generate_table.sql', 'r').read())
+        conn.commit()
+        check_old_reports = True
+    else:
+        check_old_reports = False
+    #hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
+    #                        group=os.environ['HYPOTHESIS_GROUP'])
     print('updating preprint list')
     update_preprint_list()
     print('updating metadata')
@@ -175,8 +178,6 @@ if __name__ == '__main__':
     #print('updating tweets')
     #update_tweets()
 else:
-    conn = psycopg2.connect(dbname='preprints', user='postgres', password=os.environ['POSTGRES_PASSWORD'])
-    cur = conn.cursor()
-    hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
-                            group=os.environ['HYPOTHESIS_GROUP'])
-    print('testing')
+    pass
+    #conn = psycopg2.connect(dbname='postgres', user='postgres', port='5433', password='test')
+    #cur = conn.cursor()
