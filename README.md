@@ -1,13 +1,13 @@
 [aswg-api](https://github.com/PeterEckmann1/aswg-api) provides:
 
  * A set of tools for analyzing the reproducibility, transparency, and quality of scientific manuscripts
- * Simple, unified reports tailored for each manuscript that include criteria from these tools
- * An API that provides publicly-viewable reports for COVID-19 preprints
+ * HTML reports, summarizing results from these tools, for each analyzed manuscript
+ * An API for fetching data about reports of COVID-19 preprints
  
 See reports for COVID-19 preprints at our Twitter account, [@SciScoreReports](https://twitter.com/SciscoreReports).  
 Visit our [website](https://scicrunch.org/ASWG), or read more about why we developed these tools in [Research Information](https://www.researchinformation.info/analysis-opinion/paying-it-forward-publishing-your-research-reproducibly).
 
-##API Usage
+## API Usage
 
 All API calls are made to the URL `?`.
 
