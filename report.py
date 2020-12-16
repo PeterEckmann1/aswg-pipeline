@@ -1,12 +1,3 @@
-#trial-identifier might need to use text from the pdf to extract identifiers in references
-#clean up how data/code availability is extracted (especially removing markdown, or are the links in markdown useful?), including expanding what is extracted
-#should barzooka get full page images instead of extracted images?
-#make table format all the same across tools, cleaner without column separation (fix text misformatting)
-#TODO tweet length and text (and IRB statement) still not verified with sciscore
-#move all templates and text and regexes to separate file
-#check new tool table format with group, make status red?
-#TODO finish docs, especially examples
-#TODO remove commented release lines in update
 def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers=10):
     from extractor import extract_worker
     from jetfighter import jetfighter

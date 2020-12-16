@@ -15,7 +15,7 @@ All API calls are made to the URL `?`.
 
 Parameters:
 ```
-key : API key
+key    : API key
 cursor : first ID to fetch from database
 ```
 
@@ -30,4 +30,4 @@ Field                         |  Description
 `annotation_link`             |  link to the hypothes.is annotation
 `html_report`                 |  the final report in HTML format
 
-Other fields include preprint metadata and specifics from each of the tools.
+Other fields include preprint metadata and specific results from each of the tools.
