@@ -44,7 +44,7 @@ class SciScore:
         for f_name in os.listdir(file):
             if 'star_table' in f_name:
                 os.remove(file + '/' + f_name)
-        #os.remove(zip_file)
+        os.remove(zip_file)
         self._fix_whitespace(file)
 
     def _fix_whitespace(self, file):
