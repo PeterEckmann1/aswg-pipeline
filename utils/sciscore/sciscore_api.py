@@ -2,13 +2,14 @@ import requests
 from zipfile import ZipFile
 import os
 import json
-import unidecode
+import string
 
 
 _USER_ID = os.environ['SCISCORE_USER_ID']
 _USER_TYPE = os.environ['SCISCORE_USER_TYPE']
 _API_KEY = os.environ['SCISCORE_API_KEY']
 _URL = os.environ['SCISCORE_URL']
+_SMALL_CHARSET = set(string.digits + string.ascii_letters + string.whitespace + '()*+-_=<>:&!.,?')
 
 
 class SciScore:
@@ -29,13 +30,9 @@ class SciScore:
         zip_file = file + '.zip'
         r = requests.post(url=_URL, data=params, timeout=305)
         if r.status_code != 200:
-            print('Normalizing characters, trying again')
-            params = {'userId': _USER_ID,
-                      'userType': _USER_TYPE,
-                      'documentId': self._id,
-                      'sectionContent': unidecode.unidecode(self._methods),
-                      'apiKey': _API_KEY,
-                      'jsonOutput': 'true'}
+            print('using small charset, trying again')
+            self._methods = ''.join([char for char in self._methods if char in _SMALL_CHARSET])
+            params['sectionContent'] = self._methods
             r = requests.post(url=_URL, data=params, timeout=305)
             if r.status_code != 200:
                 print('SciScore down:', r.text)
@@ -47,7 +44,7 @@ class SciScore:
         for f_name in os.listdir(file):
             if 'star_table' in f_name:
                 os.remove(file + '/' + f_name)
-        os.remove(zip_file)
+        #os.remove(zip_file)
         self._fix_whitespace(file)
 
     def _fix_whitespace(self, file):
@@ -71,7 +68,6 @@ class SciScore:
                         sentence['sentence'] = self._fix_sent(sentence['sentence'], doc_no_whitespace, whitespace_locs)
         with open(file + '/report.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(report_json))
-        return
 
     def _fix_sent(self, sentence, doc_no_whitespace, whitespace_locs):
         sentence_no_whitespace = sentence.replace(' ', '')

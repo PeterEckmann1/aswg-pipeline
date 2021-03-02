@@ -7,7 +7,7 @@ import json
 os.chdir('../')
 
 
-#todo CLINICAL TRIALS NOT WORKING, mock requests, check unresolved clinical trial numbers and multiple in a table
+#todo add test for trial-identifier, scite reference check
 class TestExtractor(unittest.TestCase):
     @classmethod
     def setUpClass(self):

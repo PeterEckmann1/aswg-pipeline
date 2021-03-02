@@ -56,7 +56,11 @@ class Preprint:
             return ''
         if not self.html:
             self.html = requests.get(self.url).text
-        return ' '.join(re.split('<h2 class="">Data Availability</h2><p id="p-[0-9]+">', self.html)[1].split('</p></div>')[0].split()).strip()
+        try:
+            return ' '.join(re.split('<h2 class="">Data Availability</h2><p id="p-[0-9]+">', self.html)[1].split('</p></div>')[0].split()).strip()
+        except:
+            print('no data/code statement')
+            return ''
 
     def get_metadata(self):
         if not self.html:
@@ -67,7 +71,7 @@ class Preprint:
             if meta.get('name') == 'DC.Title':
                 metadata['title'] = BeautifulSoup(meta.get('content'), 'html.parser').get_text()
             if meta.get('name') == 'DC.Description':
-                metadata['abstract'] = BeautifulSoup(meta.get('content'), 'html.parser').get_text().replace('\n', '')
+                metadata['abstract'] = BeautifulSoup(meta.get('content'), 'html.parser').get_text().replace('\n', ' ')
             if meta.get('name') == 'DC.Date':
                 metadata['date'] = date(*[int(num) for num in meta.get('content').split('-')])
             if meta.get('name') == 'DC.Contributor':

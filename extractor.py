@@ -26,9 +26,9 @@ def extract(doi, is_biorxiv, force_pdf, use_scaled):
     pdf = pdftools.PDF(pdf_name, doi.replace('/', '_'))
     if preprint.is_full_text_html() and not force_pdf:
         text = preprint.get_full_text_html()
-        return {'doi': doi, 'title': metadata['title'], 'abstract': metadata['abstract'], 'authors': metadata['authors'], 'date': metadata['date'], 'full_text_html': True, 'url': preprint.url, 'discussion': get_section_from_text(text, 'discussion'), 'methods': get_section_from_text(text, 'methods'), 'all_text': get_section_from_text(text, 'all') + ' ' + preprint.get_data_code_statement(), 'image_dir': pdf.get_images(use_scaled)}
+        return {'doi': doi, 'title': metadata['title'], 'abstract': metadata['abstract'], 'authors': metadata['authors'], 'date': metadata['date'], 'full_text_html': True, 'url': preprint.url, 'discussion': get_section_from_text(text, 'discussion'), 'methods': get_section_from_text(text, 'methods'), 'all_text': get_section_from_text(text, 'all') + ' ' + preprint.get_data_code_statement() + ' ' + metadata['abstract'], 'image_dir': pdf.get_images(use_scaled)}
     else:
-        return {'doi': doi, 'title': metadata['title'], 'abstract': metadata['abstract'], 'authors': metadata['authors'], 'date': metadata['date'], 'full_text_html': False, 'url': preprint.url, 'discussion': pdf.get_text('discussion'), 'methods': pdf.get_text('methods'), 'all_text': pdf.get_text('all') + ' ' + preprint.get_data_code_statement(), 'image_dir': pdf.get_images(use_scaled)}
+        return {'doi': doi, 'title': metadata['title'], 'abstract': metadata['abstract'], 'authors': metadata['authors'], 'date': metadata['date'], 'full_text_html': False, 'url': preprint.url, 'discussion': pdf.get_text('discussion'), 'methods': pdf.get_text('methods'), 'all_text': pdf.get_text('all') + ' ' + preprint.get_data_code_statement() + ' ' + metadata['abstract'], 'image_dir': pdf.get_images(use_scaled)}
 
 
 def extract_worker(args):

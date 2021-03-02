@@ -10,6 +10,7 @@ import hashlib
 from PIL import Image
 
 
+#todo line number removal doesn't work on 10.1101/2020.11.06.372037
 model = fasttext.load_model('utils/extractor/methods-model.bin')
 nlp = English()
 sentencizer = nlp.create_pipe('sentencizer')
@@ -40,7 +41,12 @@ class PDF:
         subprocess.call(['pdfimages', '-png', '-p', self.file, folder + '/'])
 
         for f_name in os.listdir(folder):
-            img = np.array(Image.open(f'{folder}/{f_name}'))
+            try:
+                img = np.array(Image.open(f'{folder}/{f_name}'))
+            except Image.DecompressionBombError:
+                print('decompression bomb error, skipping')
+                os.remove(f'{folder}/{f_name}')
+                continue
             if np.std(img) < 1:
                 os.remove(f'{folder}/{f_name}')
             elif img.size > 200000000:

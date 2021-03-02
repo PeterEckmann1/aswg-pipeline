@@ -46,7 +46,7 @@ def get_recent_reports(key: str, cursor: int):
     cur.execute('select doi, release_status, report_generated_timestamp, html_report, url, title, authors, abstract, publication_date, annotation_link, jet_page_numbers, limitation_sentences, trial_numbers, sciscore, is_modeling_paper, graph_types, is_open_data, is_open_code from preprints where report_generated_timestamp is not null order by id desc limit %s offset %s', (50, cursor,))
     return [convert_row_to_json(dict(row)) for row in cur.fetchall()]
 
-
+#todo fastapi has a background task function that should be used here
 @app.post('/update')
 def update_database(key: str):
     if not is_authenticated(key, True):

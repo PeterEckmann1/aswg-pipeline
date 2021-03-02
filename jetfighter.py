@@ -8,8 +8,7 @@ def run_jetfighter(args):
     image_dir = args['dir'] + args['safe_doi']
     try:
         has_rainbow = detect_cmap.detect_cmap(image_dir + '/*')
-    except (KeyError, ValueError) as e:
-        print('jetfighter error', args['safe_doi'], e)
+    except (KeyError, ValueError):
         return args['safe_doi'].replace('_', '/'), {'html': '<p><i>Results from <a href="https://elifesciences.org/labs/c2292989/jetfighter-towards-figure-accuracy-and-accessibility">JetFighter</a></i>: We did not find any issues relating to colormaps.</p>', 'page_nums': []}
     fig_num_to_page_num = {}
     for f_name in os.listdir(image_dir):

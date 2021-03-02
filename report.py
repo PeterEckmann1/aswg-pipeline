@@ -11,6 +11,8 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
     import os
     from tqdm import tqdm
     from multiprocessing import Pool
+    #from scite_ref_check import scite_ref_check
+    from rtransparent import rtransparent
 
     if os.path.exists('temp'):
         shutil.rmtree('temp')
@@ -36,18 +38,21 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
         doi_to_text[doi] = text
 
     jetfighter_results = jetfighter(use_scaled, workers)
-    print('limitation-recognizer running')
+    print('limitation-recognizer running..')
     limitation_recognizer_results = limitation_recognizer()
-    print('trial-identifier running')
+    print('trial-identifier running..')
     trial_identifier_results = trial_identifier(dois)
     sciscore_results = sciscore()
     barzooka_results = barzooka()
-    print('oddpub running')
+    print('oddpub running..')
     oddpub_results = oddpub()
+    #reference_check_results = scite_ref_check(dois) todo uncomment here and in output setting and in html setting
+    print('rtransparent running..')
+    rtransparent_results = rtransparent()
 
     output = {}
     for doi in dois:
-        html = sciscore_results[doi]['html'].format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'])))
+        html = sciscore_results[doi]['html'].replace('{}', 'FORMAT_PLACEHOLDER').replace('{', '(').replace('}', ')').replace('FORMAT_PLACEHOLDER', '{}').format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'], rtransparent_results[doi]['html'])))#reference_check_results[doi]['html'])))
 
         tweet_text = generate_tweet_text(doi_to_metadata[doi]['title'],
                                          doi_to_metadata[doi]['url'],
@@ -58,7 +63,7 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
                                          oddpub_results[doi]['open_code'], oddpub_results[doi]['open_data'],
                                          barzooka_results[doi]['graph_types']['bar'] > 0,
                                          len(limitation_recognizer_results[doi]['sents']) > 0,
-                                         len(jetfighter_results[doi]['page_nums']) > 0)
+                                         len(jetfighter_results[doi]['page_nums']) > 0) #we could add reference check to the list of things we tweet about
 
         output[doi] = {'url': doi_to_metadata[doi]['url'],
                        'title': doi_to_metadata[doi]['title'],
@@ -78,5 +83,9 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
                        'is_modeling_paper': sciscore_results[doi]['is_modeling_paper'],
                        'graph_types': barzooka_results[doi]['graph_types'],
                        'is_open_data': oddpub_results[doi]['open_data'],
-                       'is_open_code': oddpub_results[doi]['open_code']}
+                       'is_open_code': oddpub_results[doi]['open_code'],
+                       'reference_check': None,
+                       'coi_statement': rtransparent_results[doi]['coi_statement'],
+                       'funding_statement': rtransparent_results[doi]['funding_statement'],
+                       'registration_statement': rtransparent_results[doi]['registration_statement']}#reference_check_results[doi]['raw_json']}
     return output

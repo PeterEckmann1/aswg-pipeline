@@ -14,6 +14,6 @@ def limitation_recognizer():
             statement = 'We detected the following sentences addressing limitations in the study:<blockquote>' + text[
                                                                                                                  :1500] + (
                             '...' if len(text) > 1500 else '') + '</blockquote>'
-        statement = '<p><i>Results from <a href="https://academic.oup.com/jamia/article/25/7/855/4990607">LimitationRecognizer</a></i>: ' + statement + '</p>'
+        statement = '<i>Results from <a href="https://academic.oup.com/jamia/article/25/7/855/4990607">LimitationRecognizer</a></i>: ' + statement
         output[result['docId']] = {'html': statement, 'sents': result['sents']}
     return output

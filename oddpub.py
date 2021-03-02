@@ -8,8 +8,15 @@ def oddpub():
     next(f)
     for line in f:
         doi = line.split()[1].replace('"', '').replace('.txt', '').replace('_', '/')
-        open_data = line.split()[2] == 'TRUE'
-        open_code = line.split()[3] == 'TRUE'
+        open_data = None
+        open_code = None
+        for col in line.split():
+            if col in ['FALSE', 'TRUE']:
+                if open_data is None:
+                    open_data = col == 'TRUE'
+                else:
+                    open_code = col == 'TRUE'
+                    break
         if open_data:
             if open_code:
                 statement = 'Thank you for sharing your code and data.'

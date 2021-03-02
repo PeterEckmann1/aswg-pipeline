@@ -168,6 +168,18 @@ class Hypothesis:
         )
         return r
 
+    def get_annotations_on_page(self, uri):
+        headers = {
+            "Authorization": "Bearer " + self.token,
+            "Content-Type": "application/json;charset=utf-8",
+        }
+        r = requests.get(
+            self.api_url + "/search",
+            headers=headers,
+            params={'uri': uri, 'user': 'sciscore'},
+            )
+        return r.json()
+
     def update_annotation(self, id, payload):
         headers = {
             "Authorization": "Bearer " + self.token,

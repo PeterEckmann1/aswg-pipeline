@@ -8,8 +8,14 @@ def get_url(url):
     try:
         return requests.get(url)
     except:
+        print('failed, trying')
         time.sleep(5)
-        return requests.get(url)
+        try:
+            return requests.get(url)
+        except:
+            print('failed, trying again')
+            time.sleep(15)
+            return requests.get(url)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from utils.sciscore.sciscore_api import SciScore
 from collections import defaultdict
 import os
 from tqdm import tqdm
+import time
 
 
 def generate_html(json_obj, discard_rigor):
@@ -21,7 +22,7 @@ def generate_html(json_obj, discard_rigor):
                 else:
                     text_sections.append(sr['sentence'])
             text = '<br>'.join(text_sections)
-            rigor_table += f'<tr"><td style="min-width:100px;margin-right:1em; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{title}</td><td style="min-width:100px;border-bottom:1px solid lightgray">{text}</td></tr>'
+            rigor_table += f'<tr><td style="min-width:100px;margin-right:1em; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{title}</td><td style="min-width:100px;border-bottom:1px solid lightgray">{text}</td></tr>'
         rigor_table += '</table>'
     if len(json_obj['sections']) == 0:
         resource_table = '<p><i>No key resources detected.</i></p>'
@@ -29,7 +30,7 @@ def generate_html(json_obj, discard_rigor):
         resource_table = '<table>'
         for section in json_obj['sections']:
             title = section['sectionName']
-            resource_table += f'<tr><td style="min-width:100px;text-align:center; padding-top:4px;" colspan="2"><b>{title}</b></td></tr>'
+            resource_table += f'<tr><th style="min-width:100px;text-align:center; padding-top:4px;" colspan="2">{title}</th></tr>'
             resource_table += '<tr><td style="min-width:100px;text=align:center"><i>Sentences</i></td><td style="min-width:100px;text-align:center"><i>Resources</i></td></tr>'
             sentences = []
             mentions = defaultdict(list)
@@ -60,7 +61,7 @@ def generate_html(json_obj, discard_rigor):
                 resource_table += f'<tr><td style="min-width:100px;vertical-align:top;border-bottom:1px solid lightgray">{sentence}</td><td style="min-width:100px;border-bottom:1px solid lightgray">{mention_text}</td></tr>'
         resource_table += '</table>'
     html += f'<p><b>Table 1: Rigor</b></p>{rigor_table}<p><b>Table 2: Resources</b></p>{resource_table}'
-    html += '<hr>{}<hr><p><b>About SciScore</b></p><p>SciScore is an automated tool that is designed to assist expert reviewers by finding and presenting formulaic information scattered throughout a paper in a standard, easy to digest format. SciScore checks for the presence and correctness of RRIDs (research resource identifiers), and for rigor criteria such as sex and investigator blinding. For details on the theoretical underpinning of rigor criteria and the tools shown here, including references cited, please follow <a href="https://scicrunch.org/ASWG/about/References">this link</a>.'
+    html += '<hr>{}<hr><footer><p><b>About SciScore</b></p><p>SciScore is an automated tool that is designed to assist expert reviewers by finding and presenting formulaic information scattered throughout a paper in a standard, easy to digest format. SciScore checks for the presence and correctness of RRIDs (research resource identifiers), and for rigor criteria such as sex and investigator blinding. For details on the theoretical underpinning of rigor criteria and the tools shown here, including references cited, please follow <a href="https://scicrunch.org/ASWG/about/References">this link</a>.</p></footer>'
     return html
 
 
@@ -77,4 +78,5 @@ def sciscore():
         is_modeling = bool(predict_if_model_paper(methods))
         html = generate_html(raw, is_modeling)
         output[doi] = {'html': html, 'raw_json': raw, 'is_modeling_paper': is_modeling}
+        time.sleep(5)
     return output
