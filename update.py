@@ -25,10 +25,6 @@ def get_dois(pages):
     return [[rel['rel_doi'] for rel in r.json()['collection']] for r in get_urls([f'https://api.biorxiv.org/covid19/{page}/json' for page in pages])]
 
 
-def is_tweeted(dois):
-    return [('@SciscoreReports' in r.text or '"links":null' in r.text) for r in get_urls(['https://connect.medrxiv.org/blog_get_tweets_blogs_mx.php?doi=' + doi for doi in dois])]
-
-
 def get_metadata_from_html(html):
     soup = BeautifulSoup(html, 'html.parser')
     metadata = {'title': '', 'abstract': '', 'authors': [], 'publication_date': None}
