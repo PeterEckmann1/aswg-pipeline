@@ -7,6 +7,8 @@ from tqdm import tqdm
 import time
 
 
+#todo not required is changed to not detected now, but that should be changed once we use new sciscore version
+#todo other-sections is another section in rigor-table, need to read that once we start using full reports
 def generate_html(json_obj, discard_rigor):
     html = f"""<p>SciScore for <i>{json_obj['docIdentifier']}</i>:  (<a href="https://www.sciscore.com/index.html#faqs">What is this?</a>)</p><p>Please note, not all rigor criteria are appropriate for all manuscripts.</p>"""
     if discard_rigor:
@@ -14,6 +16,8 @@ def generate_html(json_obj, discard_rigor):
     else:
         rigor_table = '<table>'
         for section in json_obj['rigor-table']['sections']:
+            if section['title'] not in {'Sex as a biological variable', 'Randomization', 'Blinding', 'Power Analysis', 'Cell Line Authentication', 'Ethics'}:
+                continue
             title = section['title']
             text_sections = []
             for i, sr in enumerate(section['srList']):
@@ -22,6 +26,8 @@ def generate_html(json_obj, discard_rigor):
                 else:
                     text_sections.append(sr['sentence'])
             text = '<br>'.join(text_sections)
+            if text == 'not required.':
+                text = 'not detected.'
             rigor_table += f'<tr><td style="min-width:100px;margin-right:1em; border-right:1px solid lightgray; border-bottom:1px solid lightgray">{title}</td><td style="min-width:100px;border-bottom:1px solid lightgray">{text}</td></tr>'
         rigor_table += '</table>'
     if len(json_obj['sections']) == 0:

@@ -67,7 +67,7 @@ def get_metadata(dois):
     return result
 
 
-def update_preprint_list(dois=None):
+def update_preprint_list(dois=None):     #todo can cache retrieved pages
     if dois is None:
         i = 0
         doi_lists = []
@@ -77,16 +77,10 @@ def update_preprint_list(dois=None):
             for doi_list in doi_lists:
                 dois = dois + doi_list
             i += 2400
-
-    if check_old_reports:
-        already_existed = is_tweeted(dois)
-    else:
-        already_existed = [False for _ in dois]
-
     for i, doi in enumerate(dois):
         cur.execute('select doi from preprints where doi = %s', (doi,))
         if not cur.fetchone():
-            cur.execute('insert into preprints (doi, report_exists, report_already_existed, release_status) values (%s, %s, %s, 1)', (doi, already_existed[i], already_existed[i]))
+            cur.execute('insert into preprints (doi, report_exists, release_status) values (%s, false, 1)', (doi,))
     conn.commit()
 
 
@@ -100,23 +94,30 @@ def update_metadata():
         cur.execute('update preprints set url = %s, has_full_text_html = %s , title = %s, abstract = %s, authors = %s, publication_date = %s where doi = %s', (metadata[i]['url'], metadata[i]['has_full_text_html'], metadata[i]['title'], metadata[i]['abstract'], json.dumps(metadata[i]['authors']), metadata[i]['publication_date'], doi))
     conn.commit()
 
+
 def update_preexisting_annotations():
-    cur.execute('select doi, url from preprints where annotation_link is null')
-    for doi, url in cur:
-        print(url, hypothesis.get_annotations_on_page(f"https://www.{'medrxiv' if 'medrxiv' in url else 'biorxiv'}.org/cgi/content/{doi}"))
+    cur.execute('select doi from preprints where annotation_link is null')
+    import requests
+    for row in tqdm(cur.fetchall()):
+        r = requests.get('https://hypothes.is/users/sciscore', params={'q': row[0]})
+        links = re.findall('https://hyp.is/[a-zA-Z0-9/.\-_]+', r.text)
+        if links:
+            cur.execute('update preprints set annotation_link = %s where doi = %s', (links[0], row[0]))
+    conn.commit()
 
 
 def update_annotations():
-    cur.execute('select doi, url, html_report, annotation_link from preprints where (release_status = 1 or release_status = 2) and not report_already_existed and report_exists')
+    cur.execute('select doi, url, html_report, annotation_link from preprints where (release_status = 1 or release_status = 2) and report_exists')
     rows = cur.fetchall()
     for doi, url, html_report, annotation_link in tqdm(rows, desc='updating annotations'):
         if annotation_link:
+            annotation = hypothesis.get_annotation(annotation_link.split('https://hyp.is/')[1].split('/')[0])
             hypothesis.update_annotation(annotation_link.split('https://hyp.is/')[1].split('/')[0],
-                                         {'uri': url.replace('https://', 'https://www.'),
+                                         {'uri': annotation['uri'],
                                           'text': html_report,
-                                          'document': {'title': [url], 'highwire': {'doi': [doi]}},
-                                          'permissions': hypothesis.permissions,
-                                          'group': hypothesis.group})
+                                          'document': annotation['document'],
+                                          'permissions': annotation['permissions'],
+                                          'group': annotation['group']})
         else:
             annotation_link = hypothesis.post_annotation({'uri': url.replace('https://', 'https://www.'),
                                                           'text': html_report,
@@ -126,9 +127,9 @@ def update_annotations():
         cur.execute('update preprints set annotation_link = %s, release_status = 3 where doi = %s', (annotation_link, doi))
         conn.commit()
 
-    #cur.execute('select doi, url from preprints where release_status = 1 and not report_already_existed') todo remove eventually
-    #rows = cur.fetchall()
-    #for doi, url in rows:
+    # cur.execute('select doi, url from preprints where release_status = 1')
+    # rows = cur.fetchall()
+    # for doi, url in rows:
     #    annotation_link = hypothesis.post_annotation({'uri': url.replace('https://', 'https://www.'),
     #                                                  'text': 'Report will be posted here in 24-48 hours.',
     #                                                  'document': {'title': [url], 'highwire': {'doi': [doi]}},
@@ -139,7 +140,7 @@ def update_annotations():
 
 
 def update_tweets():
-    cur.execute('select doi, tweet_text, annotation_link from preprints where release_status = 3')
+    cur.execute('select doi, tweet_text, annotation_link from preprints where release_status = 3 order by publication_date desc')
     rows = cur.fetchall()
     for doi, tweet_text, annotation_link in tqdm(rows, desc='updating tweets'):
         tweet_text_with_link = tweet_text.format(annotation_link)
@@ -148,7 +149,7 @@ def update_tweets():
                 release.update_twitter_status(tweet_text_with_link)
                 break
             except Exception:
-                tweet_text_with_link = re.sub('.{5}(?=…”)', '', tweet_text_with_link)
+                tweet_text_with_link = re.sub('.{5}(?=…?”)', '', tweet_text_with_link)
         else:
             raise Exception('tweet could not be sent', tweet_text_with_link)
         cur.execute('update preprints set release_status = 4, tweet_text = %s where doi = %s', (tweet_text_with_link, doi))
@@ -162,7 +163,7 @@ def update_reports(allow_pdfs):     #todo eventually update reports which now ha
         cur.execute('select doi from preprints where has_full_text_html and not report_exists')
     dois = []
     for row in cur:
-        if not dois or len(dois[-1]) > 50:
+        if not dois or len(dois[-1]) > 100:
             dois.append([])
         dois[-1].append(row[0])
     print(sum([len(doi_set) for doi_set in dois]), 'remaining')
@@ -177,27 +178,17 @@ def update_reports(allow_pdfs):     #todo eventually update reports which now ha
 if __name__ == '__main__':
     hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
                            group=os.environ['HYPOTHESIS_GROUP'])
-
     conn = psycopg2.connect(dbname='preprints', port=5433, user='postgres', password=os.environ['POSTGRES_PASSWORD'])
     cur = conn.cursor()
-    cur.execute('select exists(select * from information_schema.tables where table_name=%s)', ('preprints',))
-    if not cur.fetchone()[0]:
-        cur.execute(open('generate_table.sql', 'r').read())
-        conn.commit()
-        check_old_reports = True
-    else:
-        check_old_reports = False
-    hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
-                            group=os.environ['HYPOTHESIS_GROUP'])
 
     #update_preexisting_annotations()
-    #print('updating preprint list')
-    #update_preprint_list()
-    #print('updating metadata')
-    #update_metadata()
-    #print('updating reports')
-    #update_reports(True) #todo change to false
-    #print('updating annotations')
-    #update_annotations()
+    print('updating preprint list')
+    update_preprint_list()
+    print('updating metadata')
+    update_metadata()
+    print('updating reports')
+    update_reports(False)
+    print('updating annotations')
+    update_annotations()
     print('updating tweets')
     update_tweets()

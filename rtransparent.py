@@ -1,6 +1,16 @@
 import subprocess
 import os
 import csv
+import sys
+
+csv_size = sys.maxsize
+while True:
+    try:
+        csv.field_size_limit(csv_size)
+        break
+    except:
+        csv_size = int(csv_size / 10)
+
 
 #todo may have to add additional data from the website, especially medrxiv
 #todo footnotes not picked up? make sure to actually verify this tool

@@ -10,6 +10,7 @@ _USER_TYPE = os.environ['SCISCORE_USER_TYPE']
 _API_KEY = os.environ['SCISCORE_API_KEY']
 _URL = os.environ['SCISCORE_URL']
 _SMALL_CHARSET = set(string.digits + string.ascii_letters + string.whitespace + '()*+-_=<>:&!.,?')
+_EXTRA_SMALL_CHARSET = set(string.digits + string.ascii_letters + string.whitespace + '.,')
 
 
 class SciScore:
@@ -17,7 +18,7 @@ class SciScore:
         if methods == '':
             self._methods = 'blank'
         else:
-            self._methods = methods
+            self._methods = methods.replace('', '').replace('', '')
         self._id = id.replace('/', '_')
 
     def get_report(self, file):
@@ -35,8 +36,13 @@ class SciScore:
             params['sectionContent'] = self._methods
             r = requests.post(url=_URL, data=params, timeout=305)
             if r.status_code != 200:
-                print('SciScore down:', r.text)
-                exit()
+                print('using extra small charset, trying again')
+                self._methods = ''.join([char for char in self._methods if char in _EXTRA_SMALL_CHARSET])
+                params['sectionContent'] = self._methods
+                r = requests.post(url=_URL, data=params, timeout=305)
+                if r.status_code != 200:
+                    print('SciScore down:', r.text)
+                    exit()
         with open(zip_file, 'wb') as f:
             f.write(r.content)
         with ZipFile(zip_file) as f:
@@ -64,7 +70,7 @@ class SciScore:
                     sentence['sentence'] = self._fix_sent(sentence['sentence'], doc_no_whitespace, whitespace_locs)
             for section in report_json['rigor-table']['sections']:
                 for sentence in section['srList']:
-                    if sentence['sentence'] != 'not detected.':
+                    if sentence['sentence'] not in {'not detected.', 'not required.'}:
                         sentence['sentence'] = self._fix_sent(sentence['sentence'], doc_no_whitespace, whitespace_locs)
         with open(file + '/report.json', 'w', encoding='utf-8') as f:
             f.write(json.dumps(report_json))
@@ -72,6 +78,8 @@ class SciScore:
     def _fix_sent(self, sentence, doc_no_whitespace, whitespace_locs):
         sentence_no_whitespace = sentence.replace(' ', '')
         sent_loc = doc_no_whitespace.find(sentence_no_whitespace)
+        if sent_loc == -1:
+            raise Exception('sentence not found')
         fixed_sent = ''
         for j, i in enumerate(range(sent_loc, sent_loc + len(sentence_no_whitespace))):
             if i in whitespace_locs:

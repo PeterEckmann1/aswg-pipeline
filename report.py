@@ -1,3 +1,6 @@
+#trial-identifier might need to use text from the pdf to extract identifiers in references
+#clean up how data/code availability is extracted (especially removing markdown, or are the links in markdown useful?), including expanding what is extracted
+#should barzooka get full page images instead of extracted images?
 def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers=10):
     from extractor import extract_worker
     from jetfighter import jetfighter
@@ -11,7 +14,7 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
     import os
     from tqdm import tqdm
     from multiprocessing import Pool
-    #from scite_ref_check import scite_ref_check
+    from scite_ref_check import scite_ref_check
     from rtransparent import rtransparent
 
     if os.path.exists('temp'):
@@ -46,19 +49,19 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
     barzooka_results = barzooka()
     print('oddpub running..')
     oddpub_results = oddpub()
-    #reference_check_results = scite_ref_check(dois) todo uncomment here and in output setting and in html setting
+    reference_check_results = scite_ref_check(dois)
     print('rtransparent running..')
     rtransparent_results = rtransparent()
 
     output = {}
     for doi in dois:
-        html = sciscore_results[doi]['html'].replace('{}', 'FORMAT_PLACEHOLDER').replace('{', '(').replace('}', ')').replace('FORMAT_PLACEHOLDER', '{}').format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'], rtransparent_results[doi]['html'])))#reference_check_results[doi]['html'])))
+        html = sciscore_results[doi]['html'].replace('{}', 'FORMAT_PLACEHOLDER').replace('{', '(').replace('}', ')').replace('FORMAT_PLACEHOLDER', '{}').format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'], rtransparent_results[doi]['html'], reference_check_results[doi]['html'])))
 
         tweet_text = generate_tweet_text(doi_to_metadata[doi]['title'],
                                          doi_to_metadata[doi]['url'],
                                          sciscore_results[doi]['is_modeling_paper'],
-                                         sum([sr['srList'][0]['sentence'] != 'not detected.' for sr in sciscore_results[doi]['raw_json']['rigor-table']['sections']]),
-                                         len(sciscore_results[doi]['raw_json']['rigor-table']['sections']),
+                                         sum([sr['srList'][0]['sentence'] not in {'not detected.', 'not required.'} for sr in sciscore_results[doi]['raw_json']['rigor-table']['sections'] if sr['title'] in {'Sex as a biological variable', 'Randomization', 'Blinding', 'Power Analysis', 'Cell Line Authentication', 'Ethics'}]),
+                                         sum([1 for sr in sciscore_results[doi]['raw_json']['rigor-table']['sections'] if sr['title'] in {'Sex as a biological variable', 'Randomization', 'Blinding', 'Power Analysis', 'Cell Line Authentication', 'Ethics'}]),
                                          sum([sum([len(sr['mentions']) for sr in section['srList']]) for section in sciscore_results[doi]['raw_json']['sections']]),
                                          oddpub_results[doi]['open_code'], oddpub_results[doi]['open_data'],
                                          barzooka_results[doi]['graph_types']['bar'] > 0,
@@ -84,8 +87,8 @@ def get_report(dois, doi_source=None, force_pdf=False, use_scaled=False, workers
                        'graph_types': barzooka_results[doi]['graph_types'],
                        'is_open_data': oddpub_results[doi]['open_data'],
                        'is_open_code': oddpub_results[doi]['open_code'],
-                       'reference_check': None,
+                       'reference_check': reference_check_results[doi]['raw_json'],
                        'coi_statement': rtransparent_results[doi]['coi_statement'],
                        'funding_statement': rtransparent_results[doi]['funding_statement'],
-                       'registration_statement': rtransparent_results[doi]['registration_statement']}#reference_check_results[doi]['raw_json']}
+                       'registration_statement': rtransparent_results[doi]['registration_statement']}
     return output
