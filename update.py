@@ -95,17 +95,6 @@ def update_metadata():
     conn.commit()
 
 
-def update_preexisting_annotations():
-    cur.execute('select doi from preprints where annotation_link is null')
-    import requests
-    for row in tqdm(cur.fetchall()):
-        r = requests.get('https://hypothes.is/users/sciscore', params={'q': row[0]})
-        links = re.findall('https://hyp.is/[a-zA-Z0-9/.\-_]+', r.text)
-        if links:
-            cur.execute('update preprints set annotation_link = %s where doi = %s', (links[0], row[0]))
-    conn.commit()
-
-
 def update_annotations():
     cur.execute('select doi, url, html_report, annotation_link from preprints where (release_status = 1 or release_status = 2) and report_exists')
     rows = cur.fetchall()
@@ -181,7 +170,6 @@ if __name__ == '__main__':
     conn = psycopg2.connect(dbname='preprints', port=5433, user='postgres', password=os.environ['POSTGRES_PASSWORD'])
     cur = conn.cursor()
 
-    #update_preexisting_annotations()
     print('updating preprint list')
     update_preprint_list()
     print('updating metadata')
