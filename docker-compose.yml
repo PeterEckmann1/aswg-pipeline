@@ -11,14 +11,12 @@ services:
     volumes:
       - ./database:/var/lib/postgresql/data
 
-  server:
+  pipeline:
     build: .
     env_file:
       - auth.env
     networks:
       - database-network
-    ports:
-      - 80:80
 
 volumes:
   database:

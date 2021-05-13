@@ -1,6 +1,6 @@
 import psycopg2
 import json
-from report import get_report
+from report import get_reports
 from utils.release.hypothesis import Hypothesis
 import subprocess
 import os
@@ -142,10 +142,7 @@ def update_tweets():
 
 
 def update_reports(allow_pdfs):     #todo eventually update reports which now have full text htmls available, because data isn't perfectly consistent now
-    if allow_pdfs:
-        cur.execute('select doi from preprints where not report_exists')
-    else:
-        cur.execute('select doi from preprints where has_full_text_html and not report_exists')
+    cur.execute('select doi from preprints where not report_exists' + ('' if allow_pdfs else ' and has_full_text_html'))
     dois = []
     for row in cur:
         if not dois or len(dois[-1]) > 100:
@@ -153,7 +150,7 @@ def update_reports(allow_pdfs):     #todo eventually update reports which now ha
         dois[-1].append(row[0])
     print(sum([len(doi_set) for doi_set in dois]), 'remaining')
     for doi_set in dois:
-        reports = get_report(doi_set)
+        reports = get_reports(doi_set)
         for doi in reports:
             cur.execute('update preprints set report_exists = true, report_generated_timestamp = current_timestamp, html_report = %s, tweet_text = %s, discussion_text = %s, methods_text = %s, all_text = %s, jet_page_numbers = %s, limitation_sentences = %s, trial_numbers = %s, sciscore = %s, is_modeling_paper = %s, graph_types = %s, is_open_data = %s, is_open_code = %s, reference_check = %s, coi_statement = %s, funding_statement = %s, registration_statement = %s where doi = %s',
                         (reports[doi]['html_report'], reports[doi]['tweet_text'], reports[doi]['discussion_text'], reports[doi]['methods_text'], reports[doi]['all_text'], json.dumps(reports[doi]['jet_page_numbers']), json.dumps(reports[doi]['limitation_sentences']), json.dumps(reports[doi]['trial_numbers']), json.dumps(reports[doi]['sciscore']), reports[doi]['is_modeling_paper'], json.dumps(reports[doi]['graph_types']), reports[doi]['is_open_data'], reports[doi]['is_open_code'], json.dumps(reports[doi]['reference_check']), reports[doi]['coi_statement'], reports[doi]['funding_statement'], reports[doi]['registration_statement'], doi))
@@ -161,10 +158,23 @@ def update_reports(allow_pdfs):     #todo eventually update reports which now ha
 
 
 if __name__ == '__main__':
-    hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'],
-                           group=os.environ['HYPOTHESIS_GROUP'])
-    conn = psycopg2.connect(dbname='preprints', port=5433, user='postgres', password=os.environ['POSTGRES_PASSWORD'])
-    cur = conn.cursor()
+    import time
+    hypothesis = Hypothesis(username=os.environ['HYPOTHESIS_USER'], token=os.environ['HYPOTHESIS_TOKEN'], group=os.environ['HYPOTHESIS_GROUP'])
+    while True:
+        try:
+            # if running outside docker
+            conn = psycopg2.connect(dbname='preprints', port=5433, user='postgres', host='localhost', password=os.environ['POSTGRES_PASSWORD'])
+            cur = conn.cursor()
+            break
+        except psycopg2.DatabaseError:
+            try:
+                # if running inside docker
+                conn = psycopg2.connect(dbname='preprints', port=5432, user='postgres', host='database', password=os.environ['POSTGRES_PASSWORD'])
+                cur = conn.cursor()
+                break
+            except psycopg2.DatabaseError:
+                time.sleep(1)
+                pass
 
     print('updating preprint list')
     update_preprint_list()

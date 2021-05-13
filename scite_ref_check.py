@@ -36,6 +36,11 @@ def get_message(num_retracted, num_errata):
 def fetch_from_api(scite_ids, dois):
     output = {}
     for i, scite_id in enumerate(scite_ids):
+        if not scite_id:
+            print('ref check conn refused')
+            output[dois[i]] = {'raw_json': None,
+                               'html': '<p><i>Results from <a href="https://medium.com/scite/reference-check-an-easy-way-to-check-the-reliability-of-your-references-b2afcd64abc6">scite Reference Check</a></i>: We found no unreliable references.</p>'}
+            continue
         response = requests.get('https://api.scite.ai/reference_check/tasks/' + scite_id).json()
         while response['status'] == 'STARTED' or response['status'] == 'PENDING':
             response = requests.get('https://api.scite.ai/reference_check/tasks/' + scite_id).json()
@@ -45,7 +50,7 @@ def fetch_from_api(scite_ids, dois):
             print('reference check failure')
             output[dois[i]]['html'] = '<p><i>Results from <a href="https://medium.com/scite/reference-check-an-easy-way-to-check-the-reliability-of-your-references-b2afcd64abc6">scite Reference Check</a></i>: We found no unreliable references.</p>'
             continue
-        papers = [response['papers'][doi] for doi in response['papers'] if response['papers'][doi]['retracted']]
+        papers = [response['papers'][doi] for doi in response['papers'] if ('retracted' in response['papers'][doi] and response['papers'][doi]['retracted'])]
         if len(papers) == 0:
             output[dois[i]]['html'] = '<p><i>Results from <a href="https://medium.com/scite/reference-check-an-easy-way-to-check-the-reliability-of-your-references-b2afcd64abc6">scite Reference Check</a></i>: We found no unreliable references.</p>'
             continue
@@ -77,9 +82,12 @@ def scite_ref_check(dois):
     scite_ids = []
     for i, f_name in enumerate(tqdm([f_name for f_name in os.listdir('temp') if '.pdf' in f_name], desc='reference check')):
         current_dois.append(dois[i])
-        scite_ids.append(requests.post('https://api.scite.ai/reference_check',
-                                       headers={'Authorization': 'Bearer ' + os.environ['SCITE_TOKEN']},
-                                       files={'pdf': open('temp/' + f_name, 'rb')}).json()['id'])
+        try:
+            scite_ids.append(requests.post('https://api.scite.ai/reference_check',
+                                           headers={'Authorization': 'Bearer ' + os.environ['SCITE_TOKEN']},
+                                           files={'pdf': open('temp/' + f_name, 'rb')}).json()['id'])
+        except requests.exceptions.ConnectionError:
+            scite_ids.append(None)
         if len(scite_ids) > 10:
             output = {**output, **fetch_from_api(scite_ids, current_dois)}
             scite_ids = []

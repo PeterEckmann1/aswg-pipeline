@@ -17,7 +17,7 @@ def generate_tweet_text(title, preprint_url, is_modeling, addressed_rigor, total
     if not limitations:
         tool_notes.append('no limitations statement')
     if poor_colormap:
-        tool_notes.append('a problematic colomap')
+        tool_notes.append('a problematic colormap')
     if len(tool_notes) < 3:
         text = text + ' and '.join(tool_notes)
     else:
