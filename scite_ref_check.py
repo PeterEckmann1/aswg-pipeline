@@ -64,14 +64,14 @@ def fetch_from_api(scite_ids, dois):
                   f'<td style="min-width:95px; border: 1px solid lightgray; padding:2px">{paper["title"][:60] + ("…" if len(paper["title"]) > 60 else "")}</td>' \
                   f'</tr>'
 
-            if paper['retracted'] == 'Retracted':
+            if paper['retracted'] is True or paper['retracted'] == 'Retracted':
                 num_retracted += 1
                 row_html.insert(0, row)
             elif paper['retracted'] == 'Has erratum' or paper['retracted'] == 'Has correction' or paper['retracted'] == 'Has expression of concern':
                 num_errata += 1
                 row_html.append(row)
             else:
-                raise Exception('Unexpected reference type', paper['retracted'])
+                raise Exception('Unexpected reference type', paper['retracted'], paper['doi'])
         output[dois[i]]['html'] = '<p><i>Results from <a href="https://medium.com/scite/reference-check-an-easy-way-to-check-the-reliability-of-your-references-b2afcd64abc6">scite Reference Check</a></i>: We found ' + get_message(num_retracted, num_errata) + '</p><table style="border-collapse: collapse;"><tr><th style="min-width:95px; border: 1px solid lightgray; padding:2px">DOI</th><th style="min-width:95px; border: 1px solid lightgray; padding:2px">Status</th><th style="min-width:95px; border: 1px solid lightgray; padding:2px">Title</th></tr>' + ''.join(row_html) + '</table>'
     return output
 

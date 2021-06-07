@@ -57,6 +57,16 @@ class Preprint:
                             paper[-1]['content'] += subtag.text + ': '
                         if subtag.name == 'p':
                             paper[-1]['content'] += subtag.text + ' '
+                        if subtag.name == 'div' and ('subsection' in subtag['class'] or 'section' in subtag['class']):
+                            for subsubtag in subtag:
+                                if subsubtag.name == 'h4':
+                                    paper[-1]['content'] += subsubtag.text + ': '
+                                if subsubtag.name == 'p':
+                                    paper[-1]['content'] += subsubtag.text + ' '
+                                if subsubtag.name == 'div':
+                                    for subsubsubtag in subsubtag:
+                                        if subsubsubtag.name == 'p' and ('section' in subsubsubtag['class'] or 'subsection' in subsubsubtag['class']):
+                                            raise Exception('too many subheadings for', self.doi)
             paper[-1]['content'] = paper[-1]['content'].strip()
         return paper
 

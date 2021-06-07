@@ -35,4 +35,4 @@ RUN Rscript \
     -e 'devtools::install_github("quest-bih/oddpub")' \
     -e 'devtools::install_github("serghiou/rtransparent@edb1eb9f4628fe372b9850a893bb70ba6e58f673")'
 COPY . .
-CMD python3.8 update.py
+CMD python3.8 -u update.py
