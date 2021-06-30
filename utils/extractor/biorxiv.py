@@ -38,7 +38,7 @@ class Preprint:
         # cloudflare rejects anything from python requests, but curl seems to work
         return subprocess.Popen([('curl.exe' if os.name == 'nt' else 'curl'), '-L', url] + HEADERS, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL).communicate()[0].decode('utf-8')
 
-    def get_full_text_html(self):
+    def get_full_text_html(self):  # todo use .full.txt links instead to avoid HTML parsing issues, e.g. 10.1101/2021.06.25.449882
         html = self._get_html(self.url + '.full')
         if 'data-panel-name="article_tab_full_text"' not in html:
             raise Exception('Full text not available for', self.url)
@@ -65,8 +65,10 @@ class Preprint:
                                     paper[-1]['content'] += subsubtag.text + ' '
                                 if subsubtag.name == 'div':
                                     for subsubsubtag in subsubtag:
-                                        if subsubsubtag.name == 'p' and ('section' in subsubsubtag['class'] or 'subsection' in subsubsubtag['class']):
-                                            raise Exception('too many subheadings for', self.doi)
+                                        if subsubsubtag.name == 'h5':
+                                            paper[-1]['content'] += subsubsubtag.text + ': '
+                                        if subsubsubtag.name == 'p' and ('class' not in subsubsubtag or 'section' in subsubsubtag['class'] or 'subsection' in subsubsubtag['class']):
+                                            paper[-1]['content'] += subsubsubtag.text + ' '
             paper[-1]['content'] = paper[-1]['content'].strip()
         return paper
 
