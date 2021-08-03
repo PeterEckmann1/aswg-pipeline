@@ -18,7 +18,7 @@ class SciScore:
         if methods == '':
             self._methods = 'blank'
         else:
-            self._methods = methods.replace('', '').replace('', '')
+            self._methods = methods.replace('', '').replace('', '').replace('𝚪', 'gamma')
         self._id = id.replace('/', '_')
 
     def get_report(self, file):
