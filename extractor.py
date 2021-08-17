@@ -15,7 +15,7 @@ def get_section_from_text(text, section_name):
     if section_name == 'all':
         for section in text:
             section_text += section['content'] + ' '
-    return section_text.replace('  ', ' ').strip()
+    return section_text.replace('\n', '').replace('  ', ' ').strip()
 
 
 def extract(doi, is_biorxiv, force_pdf, use_scaled):
