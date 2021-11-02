@@ -64,7 +64,7 @@ def fetch_from_api(scite_ids, dois):
                   f'<td style="min-width:95px; border: 1px solid lightgray; padding:2px">{paper["title"][:60] + ("…" if len(paper["title"]) > 60 else "")}</td>' \
                   f'</tr>'
 
-            if paper['retracted'] is True or paper['retracted'] == 'Retracted':
+            if paper['retracted'] == True or paper['retracted'] == 'Retracted':
                 num_retracted += 1
                 row_html.insert(0, row)
             elif paper['retracted'] == 'Has erratum' or paper['retracted'] == 'Has correction' or paper['retracted'] == 'Has expression of concern':

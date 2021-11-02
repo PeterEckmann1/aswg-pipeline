@@ -42,21 +42,26 @@ def get_reports(dois, doi_source=None, force_pdf=False, use_scaled=False, worker
         doi_to_is_full_text_html[doi] = is_full_text_html
         doi_to_text[doi] = text
 
+    print('jetfighter running..')
     jetfighter_results = jetfighter(use_scaled, workers)
     print('limitation-recognizer running..')
     limitation_recognizer_results = limitation_recognizer()
     print('trial-identifier running..')
     trial_identifier_results = trial_identifier(dois)
+    print('sciscore running')
     sciscore_results = sciscore()
+    print('barzooka running..')
     barzooka_results = barzooka()
     print('oddpub running..')
     oddpub_results = oddpub()
+    print('scite running..')
     reference_check_results = scite_ref_check(dois)
     print('rtransparent running..')
     rtransparent_results = rtransparent()
 
     output = {}
     for doi in dois:
+        print('Generating output for doi ' + doi)
         html = sciscore_results[doi]['html'].replace('{}', 'FORMAT_PLACEHOLDER').replace('{', '(').replace('}', ')').replace('FORMAT_PLACEHOLDER', '{}').format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'], rtransparent_results[doi]['html'], reference_check_results[doi]['html'])))
 
         tweet_text = generate_tweet_text(doi_to_metadata[doi]['title'],

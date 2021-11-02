@@ -18,7 +18,7 @@ class SciScore:
         if methods == '':
             self._methods = 'blank'
         else:
-            self._methods = methods.replace('', '').replace('', '').replace('𝚪', 'gamma')
+            self._methods = methods.replace('', '').replace('', '').replace('𝚪', 'gamma').replace('∀', ' for all ').replace('𝒩', 'N')
         self._id = id.replace('/', '_')
 
     def get_report(self, file):
@@ -79,7 +79,7 @@ class SciScore:
         sentence_no_whitespace = sentence.replace(' ', '')
         sent_loc = doc_no_whitespace.find(sentence_no_whitespace)
         if sent_loc == -1:
-            raise Exception('sentence not found')
+            raise Exception('sentence not found', sentence)
         fixed_sent = ''
         for j, i in enumerate(range(sent_loc, sent_loc + len(sentence_no_whitespace))):
             if i in whitespace_locs:
