@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 RUN apt-get update \
     && DEBIAN_FRONTEND="noninteractive" apt-get -y install \
         python3.8 \
-        openjdk-14-jre \
+        openjdk-17-jre \
         python3-pip \
         poppler-utils \
         r-cran-littler \
@@ -25,7 +25,8 @@ RUN python3.8 -m pip install --upgrade pip \
         scikit-learn==0.22 \
         scikit-image \
         colorspacious \
-        fastai==1.0.61 \
+        fastai==2.5.3 \
+	importlib_resources \
         unidecode \
         fastapi \
         uvicorn
