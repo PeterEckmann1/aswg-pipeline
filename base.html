@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<style>
+	table {
+		max-width: 500px;
+		border-collapse: collapse;
+	}
+
+	td, th {
+		padding: 5px;
+		border: 1px solid gray;
+	}
+
+	.description-column {
+		width: 100px;
+	}
+
+	.icon-column {
+		padding: 10px;
+		width: 5px;
+		font-size: 30px;
+		border-right: solid 1px #FFF;
+	}
+
+	.check-mark {
+		color: green;
+	}
+
+	.cross-mark {
+		color: red;
+	}
+
+	.icon-in-text {
+		font-size: 30px;
+	}
+
+    blockquote{
+        font-style:italic;
+        color: #555555;
+        padding:1.2em 10px 1.2em 10px;
+        border-left:8px solid #2f2f2f ;
+        line-height:1.6;
+        position: relative;
+        background:#EDEDED;
+    }
+
+    blockquote span{
+        display:block;
+        color:#333333;
+        font-style: normal;
+        font-weight: bold;
+        margin-top:1em;
+    }
+</style>
+
+<meta charset='utf-8'>
+<html>
+	This is an automated report for <a href=_PAPER_LINK_>_PAPER_ID_</a>.
+	<ul>
+		<li><a class='icon-in-text cross-mark'>✖</a> - critical issue</li>
+		<li><a class='icon-in-text'>⚠</a> - review for potential issues</li>
+		<li><a class='icon-in-text check-mark'>✔</a> - no action required</li>
+	</ul>
+
+    _TABLES_
+    
+</html>

@@ -18,6 +18,8 @@ services:
       - auth.env
     networks:
       - database-network
+    ports:
+      - "8000:8000"
 
 volumes:
   database:

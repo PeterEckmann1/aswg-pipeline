@@ -11,6 +11,10 @@ RUN apt-get update \
         libssl-dev \
         libgit2-dev \
         curl \
+        libfontconfig1-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libtiff5-dev \
     && ln -s $(which python3.8) /usr/bin/python
 RUN python3.8 -m pip install --upgrade pip \
     && python3.8 -m pip install --no-cache-dir \
@@ -26,14 +30,16 @@ RUN python3.8 -m pip install --upgrade pip \
         scikit-image \
         colorspacious \
         fastai==2.5.3 \
-	importlib_resources \
+	    importlib_resources \
         unidecode \
         fastapi \
-        uvicorn
+        uvicorn \
+        python-multipart
 RUN Rscript \
     -e 'install.packages("devtools")' \
     -e 'install.packages("tidyverse")' \
     -e 'devtools::install_github("quest-bih/oddpub")' \
     -e 'devtools::install_github("serghiou/rtransparent@edb1eb9f4628fe372b9850a893bb70ba6e58f673")'
 COPY . .
-CMD python3.8 -u update.py
+# CMD python3.8 -u report.py
+CMD uvicorn api:app --host 0.0.0.0

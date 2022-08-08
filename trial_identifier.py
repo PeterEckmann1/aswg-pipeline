@@ -19,18 +19,6 @@ def trial_identifier(dois):
             except IndexError:
                 output[current_doi.replace('_', '/')]['trial_identifiers'].append({'identifier': row[2], 'link': None, 'resolved': row[3] == 'TRUE', 'title': 'NA', 'status': 'NA'})
     for doi in dois:
-        if doi in output:
-            table_body = '<table><td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">Identifier</td><td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">Status</td><td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">Title</td></tr>'
-            for identifier in output[doi]['trial_identifiers']:
-                if identifier['resolved'] or 'ISRCTN' in identifier['identifier']:
-                    table_body += '<tr>'
-                else:
-                    table_body += '<tr style="background-color:#FF0000">'
-                table_body += '<td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">' + \
-                              ('<a href="{}">{}</a>'.format(identifier['link'], identifier['identifier']) if identifier['link'] else identifier['identifier']) + '</td><td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">' + \
-                              (identifier['status'] if (identifier['resolved'] or 'ISRCTN' in identifier['identifier']) else 'Trial number did not resolve on <a href="https://clinicaltrials.gov/">clinicaltrials.gov</a>. Is the number correct?') + '</td><td style="min-width:95px; border-right:1px solid lightgray; border-bottom:1px solid lightgray">' + \
-                              identifier['title'][:60] + ('…' if len(identifier['title']) > 60 else '') + '</td></tr>'
-            output[doi]['html'] = '<p><i>Results from <a href="https://github.com/bgcarlisle/PreprintScreening">TrialIdentifier</a></i>: We found the following clinical trial numbers in your paper:<br>' + table_body + '</table></p>'
-        else:
-            output[doi] = {'html': '<p><i>Results from <a href="https://github.com/bgcarlisle/PreprintScreening">TrialIdentifier</a></i>: No clinical trial numbers were referenced.</p>', 'trial_identifiers': []}
+        if doi not in output:
+            output[doi] = {'trial_identifiers': []}
     return output

@@ -18,6 +18,7 @@ def get_reports(dois, doi_source=None, force_pdf=False, use_scaled=False, worker
     from multiprocessing import Pool
     from scite_ref_check import scite_ref_check
     from rtransparent import rtransparent
+    from generate_html import generate_html
 
     if os.path.exists('temp'):
         shutil.rmtree('temp')
@@ -62,8 +63,7 @@ def get_reports(dois, doi_source=None, force_pdf=False, use_scaled=False, worker
     output = {}
     for doi in dois:
         print('Generating output for doi ' + doi)
-        html = sciscore_results[doi]['html'].replace('{}', 'FORMAT_PLACEHOLDER').replace('{', '(').replace('}', ')').replace('FORMAT_PLACEHOLDER', '{}').format('<hr style="border-top: 1px solid #ccc;">'.join((oddpub_results[doi]['html'], limitation_recognizer_results[doi]['html'], trial_identifier_results[doi]['html'], barzooka_results[doi]['html'], jetfighter_results[doi]['html'], rtransparent_results[doi]['html'], reference_check_results[doi]['html'])))
-
+        html = generate_html(doi_to_metadata, jetfighter_results, limitation_recognizer_results, sciscore_results, barzooka_results, oddpub_results, reference_check_results, rtransparent_results)
         tweet_text = generate_tweet_text(doi_to_metadata[doi]['title'],
                                          doi_to_metadata[doi]['url'],
                                          sciscore_results[doi]['is_modeling_paper'],
@@ -99,3 +99,5 @@ def get_reports(dois, doi_source=None, force_pdf=False, use_scaled=False, worker
                        'funding_statement': rtransparent_results[doi]['funding_statement'],
                        'registration_statement': rtransparent_results[doi]['registration_statement']}
     return output
+
+print(get_reports(['10.1101/2020.11.06.372037']))
